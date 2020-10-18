@@ -36,3 +36,6 @@ button{
 .back{
     background-color: orange;
 }
+.error{
+    background: red;
+}
