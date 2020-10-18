@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Table from "./components/Table";
 import './App.css'
 import $ from 'jquery';
-import _ from 'lodash';
+
 
 const App = () => {
     let isrun = false;
@@ -15,40 +15,65 @@ const App = () => {
     const start = () => {
         isrun = true;
         const exe = ()=>{
-            new Promise((resolve,reject) => {
+            return new Promise((resolve, reject) => {
                 const index = Math.floor(Math.random() * Math.floor(myblocks.length));
                 console.log("index==>", index);
                 const v = $("#" + myblocks[index]);
+                v.addClass("action");
                 setTimeout(() => {
-                    v.addClass("action");
                     const rs = Math.random();
-                    if(rs>.5){
-                        console.log("You ok!");
+
+                    if (rs > .5) {
                         resolve(v);
-                    }else{
-                        console.log("You're not ok");
+                    } else {
                         reject(v);
                     }
-                }, Math.floor(Math.random() * 1000))
-            }).then(
-                (rs) => {
-                    setTimeout(() => {
-                        rs.removeClass("action").addClass("back");
-                    }, Math.floor(Math.random() * 1000))
-                    setTimeout(()=>{
-                        rs.removeClass("back").addClass("ready");
-                    },1000)
-                }
-            ).catch((rs)=>{
-                rs.removeClass("action").addClass("error");
-                setTimeout(()=>{
-                    rs.removeClass("error").addClass("ready");
-                },1000)
+                }, 100)
             })
+        };
+
+        const addText =(ele,v)=>{
+            return new Promise((resolve,reject) => {
+                setTimeout((myele,text)=>{
+                    myele.text(text);
+                    resolve(myele);
+                },10,ele,v)
+            })
+
         }
 
+
+
         const timeid = setInterval(() => {
-            exe();
+            exe().then(
+                (rs) => {
+                    setTimeout((ele) => {
+                        ele.removeClass("action").addClass("success");
+                        setTimeout(() => {
+                            ele.removeClass("success").addClass("ready");
+                        }, 1000)
+
+                    }, 1000,rs)
+                    return addText(rs,"S");
+                }
+            ).then((rs)=>{
+                setTimeout(myele=>{
+                    myele.html("&nbsp");
+                },1000,rs)
+            }).catch((rs) => {
+                setTimeout((ele)=>{
+                    ele.removeClass("action").addClass("error");
+                    setTimeout(() => {
+                        ele.removeClass("error").addClass("ready");
+                    }, 1000)
+                },1000,rs)
+                return addText(rs,"E");
+            }).then((rs)=>{
+                if(!rs){return}
+                setTimeout(myele=>{
+                    myele.text(" ");
+                },1000,rs)
+            })
             if (!isrun) {
                 clearInterval(timeid)
             }
@@ -56,7 +81,7 @@ const App = () => {
 
     }
     const stop = () => {
-        isrun=false;
+        isrun = false;
     }
     return (
         <div className="main">
